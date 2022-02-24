@@ -34,7 +34,7 @@ module load nextflow/21.04.3
 # Get help
 nextflow run main.nf --help
 # With Docker
-nextflow run -profile docker main.nf --outpath OUTPATH_DIR --inpath INPUT_DIR
+nextflow run -profile docker main.nf --outpath OUTPATH_DIR --target target.fasta --background background.fasta
 # With Singularity
-nextflow run -profile singularity main.nf --outpath OUTPATH_DIR --inpath INPUT_DIR
+nextflow run -profile singularity main.nf --outpath OUTPATH_DIR --target target.fasta --background background.fasta
 ```
