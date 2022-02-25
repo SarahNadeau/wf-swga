@@ -40,7 +40,7 @@ if (params.help) {
     exit 0
 }
 
-if (params.version){
+if (params.version) {
     println "VERSION: $version"
     exit 0
 }
@@ -109,15 +109,14 @@ workflow {
     background = Channel.fromPath(params.background, checkIfExists: true)
 
     // TODO: handle compressed input
-//     INFILE_HANDLING(
-//         target,
-//         background
-//     )
-
-    RUN_SWGA(
-        // FIND_INFILES.out.find_infiles_success,
+    INFILE_HANDLING(
         target,
         background
+    )
+
+    RUN_SWGA(
+        INFILE_HANDLING.out.target,
+        INFILE_HANDLING.out.background
     )
 
 }

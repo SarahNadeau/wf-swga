@@ -8,22 +8,34 @@ process INFILE_HANDLING {
         path(background)
 
     output:
-        path("find_infiles.success.txt"), emit: find_infiles_success
+        path('.tmp/target.fasta.noblanks'), emit: target
+        path('.tmp/background.fasta.noblanks'), emit: background
 
     script:
     """
-    source bin/bash_functions.sh
+    source bash_functions.sh
 
-    for file in "${target}" "${background}"; do
-      if [ "${file: -3}" == '.gz' ]; then
-        base="$(basename "${file}" .gz)"
-        # Store decompressed assemblies in outpath area to avoid write
-        #  permission issues in the inpath. Also remove file extensions.
-        gunzip -c "${file}" > ./.tmp/"${base}"
-        msg "INFO: extracted compressed input ${file}"
-      fi
-      # TODO: pass back out the location of the inputs
+    # Decompress input
+    mkdir .tmp
+    if [[ "${target}" == *.gz ]]; then
+        gunzip -c ${target} > .tmp/target.fasta
+        msg "INFO: extracted compressed target genome ${target}"
+    else
+        cp ${target} .tmp/target.fasta
+    fi
+
+    if [[ "${background}" == *.gz ]]; then
+        gunzip -c ${background} > .tmp/background.fasta
+        msg "INFO: extracted compressed background genome ${background}"
+    else
+        cp ${background} .tmp/background.fasta
+    fi
+
+    # Remove blank lines for swga
+    for file in .tmp/target.fasta .tmp/background.fasta; do
+        awk NF \${file} >> \${file}.noblanks
     done
+    msg "INFO: removed any blank lines in input"
 
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
     cat .command.err >> ${params.logpath}/stderr.nextflow.txt
@@ -31,30 +43,30 @@ process INFILE_HANDLING {
 
 }
 
+
 process RUN_SWGA {
     publishDir "${params.outpath}", mode: "copy"
     container "snads/swga@sha256:776a2988b0ba727efe0b5c1420242c0309cd8e82bff67e9acf98215bf9f1f418"
 
     input:
-        // TODO: path(find_infiles_success)
         path(target)
         path(background)
 
     output:
-        path("swga"), emit: find_infiles_success
+        path("swga")
 
     script:
     """
     # Must provide an exclusionary sequences file to again avoid interactive mode
-    echo ">dummy_seq\n" > .tmp/dummy.fasta
+    echo ">dummy_seq\n" > dummy.fasta
 
     mkdir swga
     cd swga  # swga init initializes workspace in the current directory
 
     swga init \
-      -f ${target} \
-      -b ${background} \
-      -e .tmp/dummy.fasta
+      -f ../${target} \
+      -b ../${background} \
+      -e ../dummy.fasta
 
     swga count
     swga filter
@@ -62,12 +74,13 @@ process RUN_SWGA {
     # TODO: run this
     #swga find_sets
 
-    N_PRIMERS_TO_EXPORT=100  # TODO: make an optional wf input
+    # TODO: make limit an optional wf input
     swga export primers \
-      --limit ${N_PRIMERS_TO_EXPORT} \
+      --limit 100 \
       --order_by gini \
-      --output ./swga/primers_top_100_gini.txt
+      --output ./primers_top_100_gini.txt
 
+    cd ../
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
     cat .command.err >> ${params.logpath}/stderr.nextflow.txt
     """
