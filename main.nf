@@ -22,6 +22,7 @@ def helpMessage() {
     Input/output options:
       --inpath             Path to input data directory containing FastA assemblies. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
       --outpath            The output directory where the results will be saved.
+      --downsample         The number of lines to take from the head of the target and background genome files.
     Profile options:
       -profile singularity Use Singularity images to run the workflow. Will pull and convert Docker images from Dockerhub if not locally available.
       -profile docker      Use Docker images to run the workflow. Will pull images from Dockerhub if not locally available.
@@ -94,6 +95,7 @@ log.info """
 */
 include {
     INFILE_HANDLING;
+    DOWNSAMPLE_GENOMES;
     RUN_SWGA;
 } from "./modules/swga.nf"
 
@@ -114,10 +116,27 @@ workflow {
         background
     )
 
+    if (params.downsample) {
+
+        DOWNSAMPLE_GENOMES(
+            INFILE_HANDLING.out.target,
+            INFILE_HANDLING.out.background
+        )
+
+        RUN_SWGA(
+            DOWNSAMPLE_GENOMES.out.target,
+            DOWNSAMPLE_GENOMES.out.background
+        )
+
+    } else {
+
     RUN_SWGA(
         INFILE_HANDLING.out.target,
         INFILE_HANDLING.out.background
     )
+
+    }
+
 
 }
 
