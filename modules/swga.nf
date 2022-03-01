@@ -44,25 +44,26 @@ process INFILE_HANDLING {
 }
 
 
-process DOWNSAMPLE_GENOMES {
-    publishDir "${params.outpath}", mode: "copy"
+process DOWNSAMPLE_GENOME {
+    container "snads/downsample-fasta@sha256:4f8acbc70f86972ce0446a8d3b59aac7a9f13241738fbf42adbee4e6629f38a3"
 
     input:
-        path(target)
-        path(background)
+        path(genome)
+        val chunk_size
+        val n_chunks
 
     output:
-        path('.tmp/target.fasta.downsampled'), emit: target
-        path('.tmp/background.fasta.downsampled'), emit: background
+        // ${genome}.downsampled is not evaluated properly somehow, need to use regex to find output
+        path('*.downsampled'), emit: downsampled_genome
 
     script:
     """
     source bash_functions.sh
 
-    mkdir .tmp
-    msg "INFO: Down-sampling target and background genomes to first ${params.downsample} lines"
-    head -${params.downsample} ${target} > .tmp/target.fasta.downsampled
-    head -${params.downsample} ${background} > .tmp/background.fasta.downsampled
+    msg "INFO: Down-sampling ${genome} to ${n_chunks} chunks of length ${chunk_size}"
+
+    # Don't concatenate down-sampled seqs because segments aren't actually adjacent, shouldn't consider spanning kmers
+    downsample_fasta.py --fasta ${genome} --chunk-size ${chunk_size} --n-chunks ${n_chunks} --no-concatenate > ${genome}.downsampled
 
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
     cat .command.err >> ${params.logpath}/stderr.nextflow.txt
@@ -83,6 +84,8 @@ process RUN_SWGA {
 
     script:
     """
+    source bash_functions.sh
+
     # Must provide an exclusionary sequences file to again avoid interactive mode
     echo ">dummy_seq\n" > dummy.fasta
 
