@@ -105,7 +105,7 @@ process RUN_SWGA {
     swga filter
 
     # TODO: run this
-    #swga find_sets
+    swga find_sets
 
     # TODO: make limit an optional wf input
     msg "INFO: running swga export primers"
