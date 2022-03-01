@@ -104,15 +104,15 @@ process RUN_SWGA {
     msg "INFO: running swga filter"
     swga filter
 
-    # TODO: run this
+    msg "INFO: running swga find sets"
     swga find_sets
 
-    # TODO: make limit an optional wf input
-    msg "INFO: running swga export primers"
-    swga export primers \
-      --limit 100 \
-      --order_by gini \
-      --output ./primers_top_100_gini.txt
+    # TODO: make limit and order_by optional wf inputs
+    msg "INFO: running swga export sets"
+    swga export sets \
+      --limit 10 \
+      --order_by score \
+      --output ./sets_top_10_score.txt
 
     cd ../
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
