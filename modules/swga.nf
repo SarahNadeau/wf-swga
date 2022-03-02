@@ -78,6 +78,8 @@ process SWGA_FILTER_PRIMERS {
     input:
         path(target)
         path(background)
+        val max_bg_bind
+        val min_fg_bind
 
     output:
         path("swga"), emit: swga_dir
@@ -106,7 +108,9 @@ process SWGA_FILTER_PRIMERS {
     swga count
 
     msg "INFO: running swga filter"
-    swga filter
+    swga filter \
+      --max_bg_bind ${max_bg_bind} \
+      --min_fg_bind ${min_fg_bind}
 
     msg "INFO: running swga export primers"
     swga export primers \
@@ -162,6 +166,9 @@ process SWGA_FIND_SETS {
       --limit ${params.n_top_sets} \
       --order_by set_size \
       --output ./sets_top_${params.n_top_sets}_size.txt
+
+    swga export bedfile \
+      --limit ${params.n_top_sets}
 
     cd ../
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt

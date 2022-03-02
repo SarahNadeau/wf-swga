@@ -153,9 +153,15 @@ workflow {
         backgrForSwga = DOWNSAMPLE_BACKGR.out
     }
 
+    // TODO: make these optional arguments
+    max_bg_bind = java.lang.Math.ceil(params.backgr_length * params.max_bg_bind_rate).intValue() // ceiling because want >= 1
+    min_fg_bind = java.lang.Math.ceil(params.target_length * params.min_fg_bind_rate).intValue()
+
     SWGA_FILTER_PRIMERS (
         targetForSwga,
-        backgrForSwga
+        backgrForSwga,
+        Channel.from(max_bg_bind),
+        Channel.from(min_fg_bind)
     )
 
     SWGA_FIND_SETS (
