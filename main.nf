@@ -111,7 +111,8 @@ log.info """
 */
 include {
     INFILE_HANDLING;
-    RUN_SWGA;
+    SWGA_FILTER_PRIMERS;
+    SWGA_FIND_SETS;
 } from "./modules/swga.nf"
 
 include {
@@ -152,11 +153,14 @@ workflow {
         backgrForSwga = DOWNSAMPLE_BACKGR.out
     }
 
-    RUN_SWGA (
+    SWGA_FILTER_PRIMERS (
         targetForSwga,
         backgrForSwga
     )
 
+    SWGA_FIND_SETS (
+        SWGA_FILTER_PRIMERS.out.swga_dir
+    )
 
 }
 

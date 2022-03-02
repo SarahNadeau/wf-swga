@@ -71,7 +71,7 @@ process DOWNSAMPLE_GENOME {
 }
 
 
-process RUN_SWGA {
+process SWGA_FILTER_PRIMERS {
     publishDir "${params.outpath}", mode: "copy"
     container "snads/swga@sha256:776a2988b0ba727efe0b5c1420242c0309cd8e82bff67e9acf98215bf9f1f418"
 
@@ -80,7 +80,7 @@ process RUN_SWGA {
         path(background)
 
     output:
-        path("swga")
+        path("swga"), emit: swga_dir
 
     script:
     """
@@ -98,21 +98,70 @@ process RUN_SWGA {
       -b ../${background} \
       -e ../dummy.fasta
 
+    # overwrite some default count and filter configuration options
+    sed -i '/min_size/s/.*/min_size = ${params.min_size}/' parameters.cfg
+    sed -i '/max_size/s/.*/max_size = ${params.max_size}/' parameters.cfg
+
     msg "INFO: running swga count"
     swga count
 
     msg "INFO: running swga filter"
     swga filter
 
+    msg "INFO: running swga export primers"
+    swga export primers \
+      --limit ${params.n_top_primers} \
+      --order_by ratio \
+      --output ./primers_top_${params.n_top_primers}_ratio.txt
+
+    swga export primers \
+      --limit ${params.n_top_primers} \
+      --order_by gini \
+      --output ./primers_top_${params.n_top_primers}_gini.txt
+
+    cd ../
+    touch swga_filter_success.txt
+    cat .command.out >> ${params.logpath}/stdout.nextflow.txt
+    cat .command.err >> ${params.logpath}/stderr.nextflow.txt
+    """
+
+}
+
+process SWGA_FIND_SETS {
+    publishDir "${params.outpath}", mode: "copy"
+    container "snads/swga@sha256:776a2988b0ba727efe0b5c1420242c0309cd8e82bff67e9acf98215bf9f1f418"
+
+    input:
+        path(swga_dir)
+
+    output:
+        path("swga")
+
+    script:
+    """
+    source bash_functions.sh
+
+    cd swga
+
+    # overwrite some default find sets configuration options
+    sed -i '/min_bg_bind_dist/s/.*/min_bg_bind_dist = ${params.min_bg_bind_dist}/' parameters.cfg
+    sed -i '/max_fg_bind_dist/s/.*/max_fg_bind_dist = ${params.max_fg_bind_dist}/' parameters.cfg
+    sed -i '/max_sets/s/.*/max_sets = ${params.max_sets_search}/' parameters.cfg
+    sed -i '/workers/s/.*/workers = ${params.set_find_workers}/' parameters.cfg
+
     msg "INFO: running swga find sets"
     swga find_sets
 
-    # TODO: make limit and order_by optional wf inputs
     msg "INFO: running swga export sets"
     swga export sets \
-      --limit 10 \
+      --limit ${params.n_top_sets} \
       --order_by score \
-      --output ./sets_top_10_score.txt
+      --output ./sets_top_${params.n_top_sets}_score.txt
+
+    swga export sets \
+      --limit ${params.n_top_sets} \
+      --order_by set_size \
+      --output ./sets_top_${params.n_top_sets}_size.txt
 
     cd ../
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
