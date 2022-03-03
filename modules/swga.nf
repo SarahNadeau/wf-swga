@@ -70,6 +70,14 @@ process DOWNSAMPLE_GENOME {
     """
 }
 
+// TODO: implement this, remove genome lengths as required input
+// process GET_GENOME_LENGTHS {
+//     input:
+//         path(target)
+//         path(background)
+//
+// }
+
 
 process SWGA_FILTER_PRIMERS {
     publishDir "${params.outpath}", mode: "copy"
@@ -100,12 +108,10 @@ process SWGA_FILTER_PRIMERS {
       -b ../${background} \
       -e ../dummy.fasta
 
-    # overwrite some default count and filter configuration options
-    sed -i '/min_size/s/.*/min_size = ${params.min_size}/' parameters.cfg
-    sed -i '/max_size/s/.*/max_size = ${params.max_size}/' parameters.cfg
-
     msg "INFO: running swga count"
-    swga count
+    swga count \
+        --min_size ${params.min_kmer_size} \
+        --max_size ${params.max_kmer_size}
 
     msg "INFO: running swga filter"
     swga filter \
@@ -147,14 +153,12 @@ process SWGA_FIND_SETS {
 
     cd swga
 
-    # overwrite some default find sets configuration options
-    sed -i '/min_bg_bind_dist/s/.*/min_bg_bind_dist = ${params.min_bg_bind_dist}/' parameters.cfg
-    sed -i '/max_fg_bind_dist/s/.*/max_fg_bind_dist = ${params.max_fg_bind_dist}/' parameters.cfg
-    sed -i '/max_sets/s/.*/max_sets = ${params.max_sets_search}/' parameters.cfg
-    sed -i '/workers/s/.*/workers = ${params.set_find_workers}/' parameters.cfg
-
     msg "INFO: running swga find sets"
-    swga find_sets
+    swga find_sets \
+        --workers ${params.set_find_workers} \
+        --max_sets ${params.max_sets_search} \
+        --min_bg_bind_dist ${params.min_bg_bind_dist} \
+        --max_fg_bind_dist ${params.max_fg_bind_dist}
 
     msg "INFO: running swga export sets"
     swga export sets \

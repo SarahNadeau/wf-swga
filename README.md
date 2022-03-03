@@ -43,8 +43,21 @@ head -100 background.fasta > background_100.fasta
 ```
 # Get help
 nextflow run main.nf --help
+
+# Get genome lengths
+TARGET_LEN=$(wc -c example_input/target_100.fasta | awk '{print $1}')
+BACKGR_LEN=$(wc -c example_input/background_100.fasta | awk '{print $1}')
+
 # With Docker
-nextflow run -profile docker main.nf --outpath OUTPATH_DIR --target target_100.fasta --background background_100.fasta
-# With Singularity
-nextflow run -profile singularity main.nf --outpath OUTPATH_DIR --target target_100.fasta --background background_100.fasta
+# Primer search space reduced for example run, takes ~3m 30s on MacBook Pro laptop.
+nextflow run \
+    -profile docker main.nf \
+    --outpath OUTPATH_DIR \
+    --target example_input/target_100.fasta \
+    --background example_input/background_100.fasta \
+    --target_length $TARGET_LEN \
+    --backgr_length $BACKGR_LEN \
+    --max_kmer_size 10 \
+    --min_kmer_size 10 \
+    --max_sets_search 1000
 ```

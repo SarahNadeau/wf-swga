@@ -14,21 +14,37 @@ def helpMessage() {
     =========================================
 
     Usage:
-    The minimal command for running the pipeline is:
-    nextflow run main.nf
-    A more typical command for running the pipeline is:
-    nextflow run -profile singularity main.nf --inpath INPUT_DIR --outpath OUTPATH_DIR
+    nextflow run -profile singularity main.nf --target <dir> --background <dir> --backgr_length <length> --target_length <length>
 
-    Input/output options:
-      --inpath              Path to input data directory containing FastA assemblies. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
+    Mandatory parameters:
+      --target              Path to target genome assembly. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
+      --background          Path to background genome assembly. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
       --outpath             The output directory where the results will be saved.
+      --backgr_length       Length of the background genome. Used to calculate maximum binding sites for a primer in the background genome.
+      --target_length       Length of the target genome. Used to calculate minimum binding sites for a primer in the target genome.
+
+    Optional downsampling parameters:
       --target-chunk-size   Length of sequence in each chunk for down-sampling of target genome FastA.
       --target-n-chunks     The number of chunks to sample from the target genome FastA.
       --backgr-chunk-size   Length of sequence in each chunk for down-sampling of background genome FastA.
       --backgr-n-chunks     The number of chunks to sample from the background genome FastA.
+
+    Optional primer search parameters:
+      --max_bg_bind_rate    Maximum binding sites for a primer in the background genome = ceil(backgr_length * max_bg_bind_rate). Default = 0.00001 (every 100000 bp).
+      --min_fg_bind_rate    Minimum binding sites for a primer in the target (foreground) genome = ceil(target_length * min_fg_bind_rate). Default = 0.00000667 (every 150000 bp).
+      --min_bg_bind_dist    Minimum average distance between primers in a set in the background genome. Default = 80000.
+      --max_fg_bind_dist    Maximum distance between any two primer binding sites in a set in the foreground genome. Default = 7000.
+      --min_kmer_size       Minimum primer length.
+      --max_kmer_size       Maximum primer length.
+      --set_find_workers    Number of workers to spawn when searching primer graph for sets. Unclear what effect this has.
+      --max_sets_search     Maximum number of sets to check (if < 0, will find as many sets as possible). Seems powerful for speeding up find_sets if you don't care about an optimal optimal solution.
+      --n_top_primers       Maximum number of primer results to return (once ordered by ratio in target:background, once by gini evenness metric).
+      --n_top_sets          Maximum number of set results to return (once ordered by score, once by set size).
+
     Profile options:
       -profile singularity  Use Singularity images to run the workflow. Will pull and convert Docker images from Dockerhub if not locally available.
       -profile docker       Use Docker images to run the workflow. Will pull images from Dockerhub if not locally available.
+
     Other options:
       -resume               Re-start a workflow using cached results. May not behave as expected with containerization profiles docker or singularity.
       -stub                 Use example output files for any process with an uncommented stub block. For debugging/testing purposes.
@@ -54,6 +70,11 @@ File targetFileObj = new File(params.target)
 File backgroundFileObj = new File(params.background)
 if (!(targetFileObj.exists() && backgroundFileObj.exists())) {
     System.err.println "ERROR: $params.target or $params.background doesn't exist"
+    exit 1
+}
+
+if (!params.target_length || !params.backgr_length) {
+    System.err.println "ERROR: Must specify target and background genome lengths"
     exit 1
 }
 
@@ -96,10 +117,27 @@ log.info """
     =====================================
     wf-swga $version
     =====================================
-    target:         ${params.target}
-    background:     ${params.background}
-    outpath:        ${params.outpath}
-    logpath:        ${params.logpath}
+    target:             ${params.target}
+    background:         ${params.background}
+    outpath:            ${params.outpath}
+    logpath:            ${params.logpath}
+    backgr_length:      ${params.backgr_length}
+    target_length:      ${params.target_length}
+    target-chunk-size:  ${params.targetChunkSize}
+    target-n-chunks:    ${params.targetNChunks}
+    backgr-chunk-size:  ${params.backgrChunkSize}
+    backgr-n-chunks:    ${params.backgrNChunks}
+    max_bg_bind_rate:   ${params.max_bg_bind_rate}
+    min_fg_bind_rate:   ${params.min_fg_bind_rate}
+    min_bg_bind_dist:   ${params.min_bg_bind_dist}
+    max_fg_bind_dist:   ${params.max_fg_bind_dist}
+    min_kmer_size:      ${params.min_kmer_size}
+    max_kmer_size:      ${params.max_kmer_size}
+    set_find_workers:   ${params.set_find_workers}
+    max_sets_search:    ${params.max_sets_search}
+    n_top_primers:      ${params.n_top_primers}
+    n_top_sets:         ${params.n_top_sets}
+
     =====================================
     """
     .stripIndent()
