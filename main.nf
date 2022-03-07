@@ -17,8 +17,8 @@ def helpMessage() {
     nextflow run -profile singularity main.nf --target <dir> --background <dir> --backgr_length <length> --target_length <length>
 
     Mandatory parameters:
-      --target              Path to target genome assembly. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
-      --background          Path to background genome assembly. Recognized extensions are:  fa, fasta, fas, fna, fsa, fa.gz, fasta.gz, fas.gz, fna.gz, fsa.gz.
+      --target              Path to target genome assembly. File may be gzipped with suffix ".gz".
+      --background          Path to background genome assembly. File may be gzipped with suffix ".gz".
       --outpath             The output directory where the results will be saved.
       --backgr_length       Length of the background genome. Used to calculate maximum binding sites for a primer in the background genome.
       --target_length       Length of the target genome. Used to calculate minimum binding sites for a primer in the target genome.
@@ -30,6 +30,7 @@ def helpMessage() {
       --backgr-n-chunks     The number of chunks to sample from the background genome FastA.
 
     Optional primer search parameters:
+      --exclude             Absolute path to sequence to not match (i.e. mitochondrial sequence of background organism). File may be gzipped with suffix ".gz".
       --max_bg_bind_rate    Maximum binding sites for a primer in the background genome = ceil(backgr_length * max_bg_bind_rate). Default = 0.00001 (every 100000 bp).
       --min_fg_bind_rate    Minimum binding sites for a primer in the target (foreground) genome = ceil(target_length * min_fg_bind_rate). Default = 0.00000667 (every 150000 bp).
       --min_bg_bind_dist    Minimum average distance between primers in a set in the background genome. Default = 80000.
@@ -119,6 +120,7 @@ log.info """
     =====================================
     target:             ${params.target}
     background:         ${params.background}
+    exclude:            ${params.exclude}
     outpath:            ${params.outpath}
     logpath:            ${params.logpath}
     backgr_length:      ${params.backgr_length}
@@ -168,11 +170,12 @@ workflow {
 
     target = Channel.fromPath(params.target, checkIfExists: true)
     background = Channel.fromPath(params.background, checkIfExists: true)
+    exclude = Channel.from(params.exclude)  // a string (filepath or 'none')
 
-    // TODO: handle compressed input
     INFILE_HANDLING (
         target,
-        background
+        background,
+        exclude
     )
 
     targetForSwga = INFILE_HANDLING.out.target
@@ -198,6 +201,7 @@ workflow {
     SWGA_FILTER_PRIMERS (
         targetForSwga,
         backgrForSwga,
+        INFILE_HANDLING.out.exclude_seq,
         Channel.from(max_bg_bind),
         Channel.from(min_fg_bind)
     )

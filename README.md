@@ -41,14 +41,14 @@ head -100 background.fasta > background_100.fasta
 
 ## Run workflow
 ```
-# Get help
+# Get help and see all options
 nextflow run main.nf --help
 
 # Get genome lengths
 TARGET_LEN=$(wc -c example_input/target_100.fasta | awk '{print $1}')
 BACKGR_LEN=$(wc -c example_input/background_100.fasta | awk '{print $1}')
 
-# With Docker
+# Run with Docker
 # Primer search space reduced for example run, takes ~3m 30s on MacBook Pro laptop.
 nextflow run \
     -profile docker main.nf \

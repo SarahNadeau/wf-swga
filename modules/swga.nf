@@ -6,37 +6,16 @@ process INFILE_HANDLING {
     input:
         path(target)
         path(background)
+        val exclude
 
     output:
         path('.tmp/target.fasta.noblanks'), emit: target
         path('.tmp/background.fasta.noblanks'), emit: background
+        path('.tmp/exclude.fasta.noblanks'), emit: exclude_seq
 
     script:
     """
-    source bash_functions.sh
-
-    # Decompress input
-    mkdir .tmp
-    if [[ "${target}" == *.gz ]]; then
-        gunzip -c ${target} > .tmp/target.fasta
-        msg "INFO: extracted compressed target genome ${target}"
-    else
-        cp ${target} .tmp/target.fasta
-    fi
-
-    if [[ "${background}" == *.gz ]]; then
-        gunzip -c ${background} > .tmp/background.fasta
-        msg "INFO: extracted compressed background genome ${background}"
-    else
-        cp ${background} .tmp/background.fasta
-    fi
-
-    # Remove blank lines for swga
-    for file in .tmp/target.fasta .tmp/background.fasta; do
-        awk NF \${file} >> \${file}.noblanks
-    done
-    msg "INFO: removed any blank lines in input"
-
+    infile_handling.sh ${target} ${background} ${exclude}
     cat .command.out >> ${params.logpath}/stdout.nextflow.txt
     cat .command.err >> ${params.logpath}/stderr.nextflow.txt
     """
@@ -86,6 +65,7 @@ process SWGA_FILTER_PRIMERS {
     input:
         path(target)
         path(background)
+        path(exclude)
         val max_bg_bind
         val min_fg_bind
 
@@ -96,9 +76,6 @@ process SWGA_FILTER_PRIMERS {
     """
     source bash_functions.sh
 
-    # Must provide an exclusionary sequences file to again avoid interactive mode
-    echo ">dummy_seq\n" > dummy.fasta
-
     mkdir swga
     cd swga  # swga init initializes workspace in the current directory
 
@@ -106,7 +83,7 @@ process SWGA_FILTER_PRIMERS {
     swga init \
       -f ../${target} \
       -b ../${background} \
-      -e ../dummy.fasta
+      -e ../${exclude}
 
     msg "INFO: running swga count"
     swga count \
