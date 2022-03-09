@@ -33,16 +33,18 @@ def helpMessage() {
       --exclude             Absolute path to sequence to not match (i.e. mitochondrial sequence of background organism). File may be gzipped with suffix ".gz".
       --max_bg_bind_rate    Maximum binding sites for a primer in the background genome = ceil(backgr_length * max_bg_bind_rate). Default = 0.00000667 (every 150000 bp).
       --min_fg_bind_rate    Minimum binding sites for a primer in the target (foreground) genome = ceil(target_length * min_fg_bind_rate). Default = 0.00001 (every 100000 bp).
-      --min_bg_bind_dist    Minimum average distance between primers in a set in the background genome. Default = 80000.
-      --max_fg_bind_dist    Maximum distance between any two primer binding sites in a set in the foreground genome. Default = 7000.
-      --min_kmer_size       Minimum primer length.
-      --max_kmer_size       Maximum primer length.
+      --min_bg_bind_dist    Minimum average distance between primers in a set in the background genome. Default = 30000.
+      --max_fg_bind_dist    Maximum distance between any two primer binding sites in a set in the foreground genome. Default = 36000.
+      --min_kmer_size       Minimum primer length. Default = 5.
+      --max_kmer_size       Maximum primer length. Default = 12.
       --min_tm              Minimum primer melting temperature (C). Default = 15.
       --max_tm              Maximum primer melting temperature (C). Default = 45.
       --set_find_workers    Number of workers to spawn when searching primer graph for sets. Unclear what effect this has.
-      --max_sets_search     Maximum number of sets to check (if < 0, will find as many sets as possible). Seems powerful for speeding up find_sets if you don't care about an optimal optimal solution.
-      --n_top_primers       Maximum number of primer results to return (once ordered by ratio in target:background, once by gini evenness metric).
-      --n_top_sets          Maximum number of set results to return (once ordered by score, once by set size).
+      --max_sets_search     Maximum number of sets to check. Default = -1, all sets.
+      --find_sets_min_size  Minimum size of primer sets. Default = 2.
+      --find_sets_max_size  Maximum size of primer sets. Default = 7.
+      --n_top_primers       Maximum number of primer results to return (once ordered by ratio in target:background, once by gini evenness metric). Default = 200.
+      --n_top_sets          Maximum number of set results to return (once ordered by score, once by set size). Default = -1, no limit.
 
     Profile options:
       -profile singularity  Use Singularity images to run the workflow. Will pull and convert Docker images from Dockerhub if not locally available.
@@ -141,6 +143,8 @@ log.info """
     max_tm:             ${params.max_tm}
     set_find_workers:   ${params.set_find_workers}
     max_sets_search:    ${params.max_sets_search}
+    find_sets_min_size: ${params.find_sets_min_size}
+    find_sets_max_size: ${params.find_sets_max_size}
     n_top_primers:      ${params.n_top_primers}
     n_top_sets:         ${params.n_top_sets}
 

@@ -137,7 +137,9 @@ process SWGA_FIND_SETS {
         --workers ${params.set_find_workers} \
         --max_sets ${params.max_sets_search} \
         --min_bg_bind_dist ${params.min_bg_bind_dist} \
-        --max_fg_bind_dist ${params.max_fg_bind_dist}
+        --max_fg_bind_dist ${params.max_fg_bind_dist} \
+        --min_size ${params.find_sets_min_size} \
+        --max_size ${params.find_sets_max_size}
 
     msg "INFO: running swga export sets"
     swga export sets \
