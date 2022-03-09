@@ -93,7 +93,9 @@ process SWGA_FILTER_PRIMERS {
     msg "INFO: running swga filter"
     swga filter \
       --max_bg_bind ${max_bg_bind} \
-      --min_fg_bind ${min_fg_bind}
+      --min_fg_bind ${min_fg_bind} \
+      --min_tm ${params.min_tm} \
+      --max_tm ${params.max_tm}
 
     msg "INFO: running swga export primers"
     swga export primers \
