@@ -7,6 +7,7 @@
 ==============================================================================
 */
 
+// TODO: standardize parameter names, e.g. them all <swga command prefix>_<swga option>, e.g. "filter_min_tm"?
 def helpMessage() {
     log.info"""
     =========================================
