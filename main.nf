@@ -32,6 +32,7 @@ def helpMessage() {
 
     Optional primer search parameters:
       --exclude             Absolute path to sequence to not match (i.e. mitochondrial sequence of background organism). File may be gzipped with suffix ".gz".
+      --run_find_sets       Whether or not to run set finding step or stop at exporting candidate primer list. Set finding step can run forever if set criteria are too difficult to meet. Default: true.
       --max_bg_bind_rate    Maximum binding sites for a primer in the background genome = ceil(backgr_length * max_bg_bind_rate). Default = 0.00000667 (every 150000 bp).
       --min_fg_bind_rate    Minimum binding sites for a primer in the target (foreground) genome = ceil(target_length * min_fg_bind_rate). Default = 0.00001 (every 100000 bp).
       --min_bg_bind_dist    Minimum average distance between primers in a set in the background genome. Default = 30000.
@@ -146,6 +147,7 @@ log.info """
     max_sets_search:    ${params.max_sets_search}
     find_sets_min_size: ${params.find_sets_min_size}
     find_sets_max_size: ${params.find_sets_max_size}
+    run_find_sets:      ${params.run_find_sets}
     n_top_primers:      ${params.n_top_primers}
     n_top_sets:         ${params.n_top_sets}
 
@@ -215,9 +217,11 @@ workflow {
         Channel.from(min_fg_bind)
     )
 
-    SWGA_FIND_SETS (
-        SWGA_FILTER_PRIMERS.out.swga_dir
-    )
+    if (params.run_find_sets) {
+        SWGA_FIND_SETS (
+            SWGA_FILTER_PRIMERS.out.swga_dir
+        )
+    }
 
 }
 
