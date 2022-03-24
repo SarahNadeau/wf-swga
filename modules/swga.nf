@@ -59,6 +59,8 @@ process DOWNSAMPLE_GENOME {
 
 
 process SWGA_FILTER_PRIMERS {
+    cpus 8
+    memory '64 GB'
     publishDir "${params.outpath}", mode: "copy"
     container "snads/swga@sha256:776a2988b0ba727efe0b5c1420242c0309cd8e82bff67e9acf98215bf9f1f418"
 
@@ -117,6 +119,8 @@ process SWGA_FILTER_PRIMERS {
 }
 
 process SWGA_FIND_SETS {
+    cpus "${params.set_find_workers}"
+    memory '64 GB'
     publishDir "${params.outpath}", mode: "copy"
     container "snads/swga@sha256:776a2988b0ba727efe0b5c1420242c0309cd8e82bff67e9acf98215bf9f1f418"
 
