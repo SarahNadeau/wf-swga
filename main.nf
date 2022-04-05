@@ -45,6 +45,7 @@ def helpMessage() {
       --max_sets_search     Maximum number of sets to check. Default = -1, all sets.
       --find_sets_min_size  Minimum size of primer sets. Default = 2.
       --find_sets_max_size  Maximum size of primer sets. Default = 7.
+      --max_dimer_bp        Maximum number of consecutive complimentary bases between any two primers in a set. Default = 3.
       --n_top_primers       Maximum number of primer results to return (once ordered by ratio in target:background, once by gini evenness metric). Default = 200.
       --n_top_sets          Maximum number of set results to return (once ordered by score, once by set size). Default = -1, no limit.
 
@@ -147,6 +148,7 @@ log.info """
     max_sets_search:    ${params.max_sets_search}
     find_sets_min_size: ${params.find_sets_min_size}
     find_sets_max_size: ${params.find_sets_max_size}
+    max_dimer_bp:       ${params.max_dimer_bp}
     run_find_sets:      ${params.run_find_sets}
     n_top_primers:      ${params.n_top_primers}
     n_top_sets:         ${params.n_top_sets}
