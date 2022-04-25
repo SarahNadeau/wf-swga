@@ -10,7 +10,7 @@
 
 ## Install
 ```
-git clone git@github.com:sarahnadeau/wf-swga.git
+git clone https://github.com/SarahNadeau/wf-swga.git
 cd wf-swga
 ```
 
