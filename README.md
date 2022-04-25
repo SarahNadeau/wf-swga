@@ -20,6 +20,7 @@ cd wf-swga
 SINGULARITY_BASE=/scicomp/scratch/$USER
 export SINGULARITY_TMPDIR=$SINGULARITY_BASE/singularity.tmp
 export SINGULARITY_CACHEDIR=$SINGULARITY_BASE/singularity.cache
+export NXF_SINGULARITY_CACHEDIR=$SINGULARITY_BASE/singularity.cache
 mkdir -pv $SINGULARITY_TMPDIR $SINGULARITY_CACHEDIR
 
 # Restart session
