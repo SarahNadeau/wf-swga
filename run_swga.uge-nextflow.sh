@@ -2,6 +2,7 @@
 
 # This script is to run the workflow on the UGE cluster
 # Run as: qsub run_swga.uge-nextflow.sh
+# Note: this script must be run from the directory wf-swga
 
 ##################################################
 # SET THESE VARIABLES
@@ -41,7 +42,7 @@ BACKGR_LEN=$(wc -c $BACKGROUND_FULLPATH | awk '{print $1}')
 
 # Run the nextflow workflow
 if [[ -z "$EXCLUDE_FULLPATH" ]]; then
-  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
+  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge $PWD/main.nf \
     --outpath $OUTPATH_FULLPATH \
     --target $TARGET_FULLPATH \
     --background $BACKGROUND_FULLPATH \
@@ -51,7 +52,7 @@ if [[ -z "$EXCLUDE_FULLPATH" ]]; then
     --find_sets_max_size $PRIMER_SET_SIZE \
     --max_sets_search 10000
 else 
-  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
+  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge $PWD/main.nf \
     --outpath $OUTPATH_FULLPATH \
     --target $TARGET_FULLPATH \
     --background $BACKGROUND_FULLPATH \
