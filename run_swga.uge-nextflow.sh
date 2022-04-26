@@ -8,21 +8,15 @@
 # SET THESE VARIABLES
 ##################################################
 
-TARGET=example_input/target_100.fasta
-BACKGROUND=example_input/background_100.fasta
-EXCLUDE=example_input/exclude.fasta
-OUTPATH=example_results
+TARGET_FULLPATH=$HOME/wf-swga/example_input/target_100.fasta
+BACKGROUND_FULLPATH=$HOME/wf-swga/example_input/background_100.fasta
+EXCLUDE_FULLPATH=$HOME/wf-swga/example_input/exclude.fasta
+OUTPATH_FULLPATH=$HOME/wf-swga/example_results
 PRIMER_SET_SIZE=10
 
 ##################################################
 # DONT EDIT BELOW HERE
 ##################################################
-
-# I/O - get value of a symbolic link or canonical file name
-TARGET_FULLPATH=$(readlink -f "$TARGET")
-BACKGROUND_FULLPATH=$(readlink -f "$BACKGROUND")
-EXCLUDE_FULLPATH=$(readlink -f "$EXCLUDE")
-OUTPATH_FULLPATH=$(readlink -f "$OUTPATH")
 
 # Load nextflow module
 module load nextflow/21.04.3
