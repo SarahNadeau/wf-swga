@@ -7,11 +7,11 @@
 # SET THESE VARIABLES
 ##################################################
 
-TARGET=path/to/target_genome.fasta
-BACKGROUND=path/to/background_genome.fasta
-EXCLUDE=path/to/seqs_to_exclude.fasta
-OUTPATH=swga_results
-PRIMER_SET_SIZE=20
+TARGET=example_input/target_100.fasta
+BACKGROUND=example_input/background_100.fasta
+EXCLUDE=example_input/exclude.fasta
+OUTPATH=example_results
+PRIMER_SET_SIZE=10
 
 ##################################################
 # DONT EDIT BELOW HERE
