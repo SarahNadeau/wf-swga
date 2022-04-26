@@ -7,10 +7,10 @@
 # SET THESE VARIABLES
 ##################################################
 
-TARGET=example_input/target_100.fasta
-BACKGROUND=example_input/background_100.fasta
-EXCLUDE=example_input/exclude.fasta
-OUTPATH=example_results
+TARGET=./example_input/target_100.fasta
+BACKGROUND=./example_input/background_100.fasta
+EXCLUDE=./example_input/exclude.fasta
+OUTPATH=./example_results
 PRIMER_SET_SIZE=10
 
 ##################################################
@@ -35,10 +35,7 @@ BACKGR_LEN=$(wc -c $BACKGROUND | awk '{print $1}')
 
 # Run the nextflow workflow
 if [[ -z "$EXCLUDE" ]]; then
-  nextflow run \
-    -log /scicomp/scratch/$USER/nextflow_log.txt \
-    run \
-    -profile singularity,sge \
+  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
     --outpath $OUTPATH \
     --target $TARGET \
     --background $BACKGROUND \
@@ -48,10 +45,7 @@ if [[ -z "$EXCLUDE" ]]; then
     --find_sets_max_size $PRIMER_SET_SIZE \
     --max_sets_search 10000
 else 
-  nextflow run \
-    -log /scicomp/scratch/$USER/nextflow_log.txt \
-    run \
-    -profile singularity,sge \
+  nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
     --outpath $OUTPATH \
     --target $TARGET \
     --background $BACKGROUND \
