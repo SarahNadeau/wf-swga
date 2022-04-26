@@ -54,8 +54,8 @@ BACKGR_LEN=$(wc -c example_input/background_100.fasta | awk '{print $1}')
 nextflow run \
     -profile docker main.nf \
     --outpath OUTPATH_DIR \
-    --target example_input/target_100.fasta \
-    --background example_input/background_100.fasta \
+    --target target_100.fasta \
+    --background background_100.fasta \
     --target_length $TARGET_LEN \
     --backgr_length $BACKGR_LEN \
     --max_kmer_size 10 \
