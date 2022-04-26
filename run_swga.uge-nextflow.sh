@@ -7,15 +7,21 @@
 # SET THESE VARIABLES
 ##################################################
 
-TARGET=./example_input/target_100.fasta
-BACKGROUND=./example_input/background_100.fasta
-EXCLUDE=./example_input/exclude.fasta
-OUTPATH=./example_results
+TARGET=example_input/target_100.fasta
+BACKGROUND=example_input/background_100.fasta
+EXCLUDE=example_input/exclude.fasta
+OUTPATH=example_results
 PRIMER_SET_SIZE=10
 
 ##################################################
 # DONT EDIT BELOW HERE
 ##################################################
+
+# I/O - get value of a symbolic link or canonical file name
+TARGET_FULLPATH=$(readlink -f "$TARGET")
+BACKGROUND_FULLPATH=$(readlink -f "$BACKGROUND")
+EXCLUDE_FULLPATH=$(readlink -f "$EXCLUDE")
+OUTPATH_FULLPATH=$(readlink -f "$OUTPATH")
 
 # Load nextflow module
 module load nextflow/21.04.3
@@ -30,15 +36,15 @@ mkdir -p /scicomp/scratch/$USER/singularity.cache && \
 source $HOME/.bashrc
 
 # Get approximate target and background genome lengths
-TARGET_LEN=$(wc -c $TARGET | awk '{print $1}')
-BACKGR_LEN=$(wc -c $BACKGROUND | awk '{print $1}')
+TARGET_LEN=$(wc -c $TARGET_FULLPATH | awk '{print $1}')
+BACKGR_LEN=$(wc -c $BACKGROUND_FULLPATH | awk '{print $1}')
 
 # Run the nextflow workflow
-if [[ -z "$EXCLUDE" ]]; then
+if [[ -z "$EXCLUDE_FULLPATH" ]]; then
   nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
-    --outpath $OUTPATH \
-    --target $TARGET \
-    --background $BACKGROUND \
+    --outpath $OUTPATH_FULLPATH \
+    --target $TARGET_FULLPATH \
+    --background $BACKGROUND_FULLPATH \
     --target_length $TARGET_LEN \
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
@@ -46,10 +52,10 @@ if [[ -z "$EXCLUDE" ]]; then
     --max_sets_search 10000
 else 
   nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge main.nf \
-    --outpath $OUTPATH \
-    --target $TARGET \
-    --background $BACKGROUND \
-    --exclude $EXCLUDE \
+    --outpath $OUTPATH_FULLPATH \
+    --target $TARGET_FULLPATH \
+    --background $BACKGROUND_FULLPATH \
+    --exclude $EXCLUDE_FULLPATH \
     --target_length $TARGET_LEN \
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
