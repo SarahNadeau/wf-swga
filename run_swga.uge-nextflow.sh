@@ -40,6 +40,14 @@ source $HOME/.bashrc
 TARGET_LEN=$(wc -c $TARGET_FULLPATH | awk '{print $1}')
 BACKGR_LEN=$(wc -c $BACKGROUND_FULLPATH | awk '{print $1}')
 
+echo "OUTPATH_FULLPATH: $OUTPATH_FULLPATH"
+echo "TARGET_FULLPATH: $TARGET_FULLPATH"
+echo "BACKGROUND_FULLPATH: $BACKGROUND_FULLPATH"
+echo "EXCLUDE_FULLPATH: $EXCLUDE_FULLPATH"
+echo "TARGET_LEN: $TARGET_LEN"
+echo "BACKGR_LEN: $BACKGR_LEN"
+echo "PRIMER_SET_SIZE: $PRIMER_SET_SIZE"
+
 # Run the nextflow workflow
 if [[ -z "$EXCLUDE_FULLPATH" ]]; then
   nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge $HOME/wf-swga/main.nf \
