@@ -41,6 +41,7 @@ TARGET_LEN=$(wc -c $TARGET_FULLPATH | awk '{print $1}')
 BACKGR_LEN=$(wc -c $BACKGROUND_FULLPATH | awk '{print $1}')
 
 # Run the nextflow workflow
+echo "$PWD/main.nf"
 if [[ -z "$EXCLUDE_FULLPATH" ]]; then
   nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge $PWD/main.nf \
     --outpath $OUTPATH_FULLPATH \
@@ -50,7 +51,8 @@ if [[ -z "$EXCLUDE_FULLPATH" ]]; then
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
     --find_sets_max_size $PRIMER_SET_SIZE \
-    --max_sets_search 10000
+    --max_sets_search 10000 \
+    -w /scicomp/scratch/$USER/work
 else 
   nextflow -log /scicomp/scratch/$USER/nextflow_log.txt run -profile singularity,sge $PWD/main.nf \
     --outpath $OUTPATH_FULLPATH \
@@ -61,5 +63,6 @@ else
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
     --find_sets_max_size $PRIMER_SET_SIZE \
-    --max_sets_search 10000
+    --max_sets_search 10000 \
+    -w /scicomp/scratch/$USER/work
 fi
