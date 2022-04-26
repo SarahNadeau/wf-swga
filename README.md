@@ -43,6 +43,7 @@ head -100 example_input/background.fasta > example_input/background_100.fasta
 ```
 
 ## Run workflow
+Note: replace `-profile singularity` with `-profile docker` if you are using docker instead.
 ```
 # Get help and see all options
 nextflow run main.nf --help
@@ -54,7 +55,7 @@ BACKGR_LEN=$(wc -c example_input/background_100.fasta | awk '{print $1}')
 # Run with Docker
 # Primer search space reduced for example run, takes ~3m 30s on MacBook Pro laptop.
 nextflow run \
-    -profile docker main.nf \
+    -profile singularity main.nf \
     --outpath OUTPATH_DIR \
     --target example_input/target_100.fasta \
     --background example_input/background_100.fasta \
