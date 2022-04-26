@@ -23,21 +23,23 @@ export SINGULARITY_CACHEDIR=$SINGULARITY_BASE/singularity.cache
 export NXF_SINGULARITY_CACHEDIR=$SINGULARITY_BASE/singularity.cache
 mkdir -pv $SINGULARITY_TMPDIR $SINGULARITY_CACHEDIR
 
-# Restart session
+# Restart session, navigate back into wf-swga
 
 module load nextflow/21.04.3
 
 # Run workflow with -profile singularity
 ```
 
-## Get example data
+## Get example data 
+These files are actually already included in `example_input`, but here's how they were generated:
 ```
 # Take data used by swga tutorial
-wget "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=15594346&rettype=fasta&retmode=text" -O target.fasta
-wget "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=556503834&rettype=fasta&retmode=text" -O background.fasta
+mkdir -p example_input
+wget "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=15594346&rettype=fasta&retmode=text" -O example_input/target.fasta
+wget "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=556503834&rettype=fasta&retmode=text" -O example_input/background.fasta
 # Decrease file size to make it run faster
-head -100 target.fasta > target_100.fasta
-head -100 background.fasta > background_100.fasta
+head -100 example_input/target.fasta > example_input/target_100.fasta
+head -100 example_input/background.fasta > example_input/background_100.fasta
 ```
 
 ## Run workflow
@@ -54,8 +56,8 @@ BACKGR_LEN=$(wc -c example_input/background_100.fasta | awk '{print $1}')
 nextflow run \
     -profile docker main.nf \
     --outpath OUTPATH_DIR \
-    --target target_100.fasta \
-    --background background_100.fasta \
+    --target example_input/target_100.fasta \
+    --background example_input/background_100.fasta \
     --target_length $TARGET_LEN \
     --backgr_length $BACKGR_LEN \
     --max_kmer_size 10 \
