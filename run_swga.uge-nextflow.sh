@@ -14,6 +14,8 @@ EXCLUDE_FULLPATH=$HOME/wf-swga/example_input/exclude.fasta  # optional: a fasta 
 OUTPATH_FULLPATH=$HOME/wf-swga/example_results  # where to store results (will be created if it doesn't exist)
 PRIMER_SET_SIZE=10  # number of primers
 WF_INSTALL_FULLPATH=$HOME/wf-swga  # path to where you installed the workflow
+MIN_TEMP=18  # minimum primer melting temperature (deg C)
+MAX_TEMP=30  # minimum primer melting temperature (deg C)
 
 ##################################################
 # DONT EDIT BELOW HERE
@@ -55,6 +57,8 @@ if [[ -z "$EXCLUDE_FULLPATH" ]]; then
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
     --find_sets_max_size $PRIMER_SET_SIZE \
+    --min_tm $MIN_TEMP \
+    --max_tm $MAX_TEMP \
     --max_sets_search 10000 \
     -w /scicomp/scratch/$USER/work
 else 
@@ -67,6 +71,8 @@ else
     --backgr_length $BACKGR_LEN \
     --find_sets_min_size $PRIMER_SET_SIZE \
     --find_sets_max_size $PRIMER_SET_SIZE \
+    --min_tm $MIN_TEMP \
+    --max_tm $MAX_TEMP \
     --max_sets_search 10000 \
     -w /scicomp/scratch/$USER/work
 fi
